@@ -1,0 +1,39 @@
+[user]
+	name = Daniel Kagan
+	email = danielk@wix.com
+[color]
+  ui = always
+  branch = always
+  diff = always
+  interactive = always
+  status = always
+  grep = always
+  pager = true
+  decorate = always
+  showbranch = always
+[push]
+	default = current
+[core]
+	ignorecase = false
+[pull]
+	rebase = true
+[alias]
+  lg = log --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s ' --abbrev-commit 
+  lg2 = log --decorate-refs-exclude=refs/tags --pretty=format:'%Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s' -10
+	c-hist = log --pretty=format:\"%C(yellow)%h%Creset %ad | %Cgreen%s%Creset %Cred%d%Creset %Cblue[%an]\" --date=short
+[core]
+  pager = diff-so-fancy | less --tabs=4 -RFXSg 
+[interactive]
+  diffFilter = diff-so-fancy --patch
+[delta]
+    navigate = true
+    line-numbers = true
+[merge]
+    conflictstyle = diff3
+[diff]
+  colorMoved = default
+	tool = vimdiff
+[difftool]
+	prompt = false
+[core]
+  editor = lvim
