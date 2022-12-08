@@ -1,9 +1,11 @@
-
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+#FZF_TAB
+source ~/repos/fzf-tab/fzf-tab.plugin.zsh
 
 # Rust
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
@@ -97,7 +99,8 @@ export NVM_DIR="$HOME/.nvm"
 source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
 export FZF_DEFAULT_COMMAND='rg --files --follow --hidden -g '!.git/'' # Use rip-grep on FZF
-export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --reverse --color=fg:#d0d0d0,bg:#121212,hl:#5f87af --color=fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff --color=info:#afaf87,prompt:#d7005f,pointer:#af5fff --color=marker:#87ff00,spinner:#af5fff,header:#87afaf'
+# export FZF_DEFAULT_COMMAND='rg --files --follow --hidden' # Use rip-grep on FZF
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --bind esc:abort --reverse --color=fg:#d0d0d0,bg:#121212,hl:#5f87af --color=fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff --color=info:#afaf87,prompt:#d7005f,pointer:#af5fff --color=marker:#87ff00,spinner:#af5fff,header:#87afaf'
 # =========================================================================================================
 
 # RPROMPT="%{$fg[yellow]%}[%*]"
@@ -111,7 +114,7 @@ bindkey '^ ' autosuggest-accept
 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 #source ~/repos/fzf-tab/fzf-tab.plugin.zsh
 

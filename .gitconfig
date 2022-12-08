@@ -18,9 +18,10 @@
 [pull]
 	rebase = true
 [alias]
-  lg = log --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s ' --abbrev-commit 
+  lg = log --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(15)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s ' --abbrev-commit 
   lg2 = log --decorate-refs-exclude=refs/tags --pretty=format:'%Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s' -10
 	c-hist = log --pretty=format:\"%C(yellow)%h%Creset %ad | %Cgreen%s%Creset %Cred%d%Creset %Cblue[%an]\" --date=short
+	masterbase = git fetch && git rebase origin/master && git push --force-with-lease
 [core]
   pager = diff-so-fancy | less --tabs=4 -RFXSg 
 [interactive]
@@ -37,3 +38,5 @@
 	prompt = false
 [core]
   editor = lvim
+[init]
+	defaultBranch = main

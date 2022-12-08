@@ -1,5 +1,4 @@
 add-alias() {
-
 	if [ -z "$1" ] || [ -z "$2" ]; then
 		echo 'Usage: add-alias <alias-name> "<alias-value>"'
 	elif [[ ! -z "$3" ]]; then
@@ -30,7 +29,7 @@ tree2() {
   exa --icons -1 -a --group-directories-first --git-ignore --color=always -T -L $depth
 }
 
-gcom() {
+export -f gcom() {
 	if [ -z "$1" ]; then
 		echo "usage: gcom <file-path>"
 	else
@@ -86,7 +85,7 @@ openGithubPR() {
 }
 
 ghistory() {
- git log origin/master --pretty='format:%C(yellow)%h %Cblue%>(12)%ar %Cgreen%<(7)%aN %Creset%s' -- $1 | fzf --ansi --no-sort --exact --preview 'git diff {1}^1..{1} | delta' 
+ git log origin/master --pretty='format:%C(yellow)%h %Cblue%>(12)%ar %Cgreen%<(7)%aN %Creset%s' -- $1 | fzf --ansi --no-sort --exact --bind='tab:toggle-preview' --preview 'git diff {1}^1..{1} | delta' 
 }
 
 touch2() { mkdir -p "$(dirname "$1")" && touch "$1" ; }
@@ -123,8 +122,24 @@ update-falcon() {
       git push
 	fi
 }
-commit() { git commit -m "$1" }
+commit() { 
+   # git commit -m "$1" 
+   git commit -m "$(gum input --placeholder='Commit Message...')"
+}
 commitv() { git commit -m "$1" --no-verify }
+
+gcomf() {
+	branch=$(git branch --show-current)
+	git diff --name-only $branch $(git merge-base $branch origin/master) | cut -f 2 | fzf --bind='tab:toggle-preview' --preview 'git diff origin/master..HEAD {1} | delta' |  xargs git checkout origin/master --
+}
+
+infra-commits () {
+  infra_prs=$(gh pr list --state merged  --search "label:infra" | cut -f1 | tr  '\n' '|' | sed '$s/|$/\n/')
+  git log origin/master --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %s %C(auto)%d%Creset' --abbrev-commit | grep -E "#($infra_prs)"  | fzf --ansi --no-sort --exact --bind='tab:toggle-preview' --preview 'git show {1} | delta' | awk '{print $1}' | tr -d '\n' | openGithubCommitOnRemote
+}
+
+
+
 
 alias cat="bat"
 alias tb="cd ~/repos/thunderbolt"
@@ -134,16 +149,17 @@ alias tbm-reset="git fetch origin && git reset --hard origin/master"
 alias tbp-reset="git fetch upstream && git reset --hard upstream/master"
 alias tbp-rebase="git fetch upstream && git rebase upstream/master"
 alias lg="lazygit"
-alias glog="git log --pretty='format:%C(yellow)%h %Cblue%>(12)%ar %Cgreen%<(7)%aN %Creset%s' | fzf --ansi --no-sort --exact --preview 'git diff {1}^1..{1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
-alias glogm="git log origin/master --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %s %C(auto)%d%Creset' --abbrev-commit | fzf --ansi --no-sort --exact --preview 'git diff {1}^1..{1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
-alias glogmd="git log origin/master --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cd%Creset %C(bold blue)%<(16)%an%Creset %s %C(auto)%d%Creset' --abbrev-commit | fzf --ansi --no-sort --exact --preview 'git diff {1}^1..{1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
-alias daniel="git log origin/master --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s ' --abbrev-commit" 
+alias glog="git log --pretty='format:%C(yellow)%h %Cblue%>(12)%ar %Cgreen%<(7)%aN %Creset%s' | fzf --ansi --no-sort --exact --preview 'git show {1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
+# alias glogm="git log origin/master --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %s %C(auto)%d%Creset' --abbrev-commit | fzf --ansi --no-sort --exact --bind='tab:toggle-preview' --preview 'git show {1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
+alias glogmd="git log origin/master --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cd%Creset %C(bold blue)%<(16)%an%Creset %s %C(auto)%d%Creset' --abbrev-commit | fzf --ansi --no-sort --exact --bind='tab:toggle-preview' --preview 'git show {1} | delta' | awk '{print \$1}' | tr -d '\n' | openGithubCommitOnRemote"
+alias daniel="git log origin/master --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset %Cgreen%<(13)%cr%Creset %C(bold blue)%<(16)%an%Creset %C(auto)%d%Creset %s ' --abbrev-commit"
 alias gfiles="rg -l '' --hidden | fzf --ansi --preview 'bat --color=always {1}' | tr -d '\n' | openGithubFileOnRemote"
-alias bb="git for-each-ref --sort='-creatordate' --format='%(if)%(HEAD)%(then)* %(else)  %(end)%(refname:short)' refs/heads/ | fzf --height 10 --preview-window right,80% --preview 'git lg2 {1}' | xargs git checkout"
+alias bb="git for-each-ref --sort='-creatordate' --format='%(if)%(HEAD)%(then)* %(else)  %(end)%(refname:short)' refs/heads/ | fzf --height 10 --bind='tab:toggle-preview' --preview-window right,80% --preview 'git lg2 {1}' | xargs git checkout"
 alias pr='gh pr list --author "@me"  | fzf --height 10'
 alias amend="git commit --amend --no-edit"
 alias amendv="git commit --amend --no-edit --no-verify"
-alias rb="git fetch origin master:master && git rebase master"
+# alias rb="git fetch origin master:master && git rebase master"
+alias rb="git fetch && git rebase origin/master"
 alias my-branches="git for-each-ref --format='%(committerdate) %09 %(authorname) %09 %(refname)' | sort -k5n -k2M -k3n -k4n | grep Kagan | uniq | tail"
 alias yarnfast="npx https://registry.yarnpkg.com/midgard-yarn/-/midgard-yarn-1.23.22.tgz"
 
@@ -156,7 +172,7 @@ alias gcmm="gco"
 alias wdpl="wdp list -w -a wix-thunderbolt -g com.wixpress.html-client | less"
 alias ee="cd ~/repos/editor-elements"
 alias repos="cd ~/repos"
-alias dummy="git commit -m 'dummy' --allow-empty --no-verify"
+alias dummy="git commit -m 'dummy $1' --allow-empty --no-verify"
 alias gcmf="git checkout master -- "
 alias all-cowsay='for i in $(cowsay -l | sed -n '1!p'); do echo $i; done | fzf --preview="cowsay -f {} {}"'
 alias tbmr="gco thunderbolt-master && rb && git clean -fxd && yarn fast"
@@ -171,6 +187,13 @@ alias tt="tmux attach-session -t Daniel"
 alias tc="tmux kill-server ; ~/scripts/create-tmux-session.sh"
 alias ping="gping"
 alias vimrc="lvim ~/.local/share/lunarvim/lvim"
-alias infra="vim ~/repos/viewer-infra"
 alias pingg="ping google.com"
 alias hist="fc -l -n 1 | sed 's/^\s*//' | fzf --height 10 |  awk '{system(-zsh)}'"
+alias nvimrc="nvim ~/.config/nvim"
+alias snirdaniel="cd ~"
+alias yarnlock="yarn install --mode update-lockfile"
+alias rbm="git pull origin master"
+alias config="(cd ~/repos/dotfiles && lvim -O .zshrc .alias.sh)"
+alias gpp="git pull && git push"
+alias killn="killall -9 node && killall -9 node"
+alias gdiff="git diff origin/master...HEAD"
